@@ -1,7 +1,7 @@
 -- controls the weight of transparent to non-transparent tiles
-local transparency_bias = 0.9 
+local transparency_bias = 0.75
 
--- guards, setup
+-- setup
 local lay = app.activeLayer
 if not lay.isTilemap then return app.alert("No active timemap layer") end
 local tileset = lay.tileset
@@ -17,18 +17,19 @@ if not cel then return app.alert("No active image") end
 local img = cel.image:clone()
 if img.colorMode ~= ColorMode.TILEMAP then return app.alert("Active image not in TILEMAP color mode") end
 
+math.randomseed(os.time())
+
+-- funcs
+function randomFloat(lower, greater)
+    return lower + math.random() * (greater - lower);
+end
+
 -- use the active sprite's spec and adjust for the grid size of the tileset
 local spec = img.spec
 spec.width = math.ceil(template.width / size.width)
 spec.height = math.ceil(template.height / size.height)
 local generated = Image(spec)
 generated:drawImage(img)
-
-math.randomseed(os.time())
-
-function randomFloat(lower, greater)
-    return lower + math.random() * (greater - lower);
-end
 
 -- generate random tiles for the full area of the sprite
 for it in generated:pixels() do
@@ -40,7 +41,7 @@ for it in generated:pixels() do
   end
 end
 
--- this generates one undoable action
+-- this generates one, un-doable action
 cel.image = generated
 
 -- redraw the screen to show the modified pixels
